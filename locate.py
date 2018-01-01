@@ -9,7 +9,29 @@ from sklearn import metrics
 from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor, ExtraTreesRegressor
 
-data = np.loadtxt('data/4g.csv', dtype=np.float, delimiter=",", skiprows=1)
+def load_data(filename):
+    data = np.loadtxt(filename, dtype=np.float, delimiter=",", skiprows=1)
+    return data
+
+
+def split_train_test_data():
+    train_set = []
+    test_set = []
+
+    m, n = data.shape
+    for i in range(1, m):
+        if i % 16 == 0:
+            test_set.append(data[i])
+        else:
+            train_set.append(data[i])
+
+    trains = np.array(train_set)
+    tests = np.array(test_set)
+    print(trains.shape)
+    print(tests.shape)
+    return trains,tests
+
+data = np.loadtxt('data/2g.csv', dtype=np.float, delimiter=",", skiprows=1)
 
 dataframe = pd.DataFrame(data)
 train_set = []
@@ -24,6 +46,8 @@ for i in range(1, m):
 
 trains = np.array(train_set)
 tests = np.array(test_set)
+print(trains.shape)
+print(tests.shape)
 
 train_x = trains[0:, 6:]
 train_label = trains[0:, 4:6]
@@ -44,16 +68,16 @@ etr_y_predict = etr.predict(test_x)
 errors_predict = test_label - etr_y_predict
 
 # 计算距离
-a = errors_predict[0, 1]
-b = errors_predict[0, 0]
+a = errors_predict[0:, 1] * np.pi / 180.0
+b = errors_predict[0:, 0] * np.pi / 180.0
 sin_square_half_a = (np.sin(a / 2)) ** 2
 sin_square_half_b = (np.sin(b / 2)) ** 2
-extract = (sin_square_half_a + np.cos(test_label[0, 1]) * np.cos(etr_y_predict[0, 1]) * sin_square_half_b) ** (1 / 2)
+extract = (sin_square_half_a + np.cos(test_label[0:, 1] * np.pi / 180.0) * np.cos(etr_y_predict[0:, 1] * np.pi / 180.0) * sin_square_half_b) ** (1 / 2)
 r = 6378.137
 s = 2 * np.arcsin(extract) * r
-print(s)
-print(test_label)
-print(etr_y_predict)
+
+print(np.mean(s))
+
 
 # gbt = GradientBoostingRegressor()
 # gbt.fit(x,label)
@@ -67,11 +91,3 @@ print(etr_y_predict)
 # predicted = model.predict(x)
 
 print(data.shape)
-
-'''
-函数
-'''
-
-
-def func():
-    pass
