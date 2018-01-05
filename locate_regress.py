@@ -3,6 +3,7 @@
 # Author wangdechang
 # Time 2018/1/1
 
+
 import numpy as np
 from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor, ExtraTreesRegressor, ExtraTreesClassifier
 
@@ -43,10 +44,13 @@ def error_distance(predict_label, test_label):
     s = 2 * np.arcsin(extract) * r
 
     print("平均距离误差（单位：km）：%f" % np.mean(s))
-    pass
+    print("最大距离误差（单位：km）：%f" % np.max(s))
+    print("最小距离误差（单位：km）：%f" % np.min(s))
+    print("中位误差（单位：km）： %f" % np.median(s))
 
 
-def predict():
+
+def regress_predict():
     data = load_data('data/2g.csv')
 
     trains, tests = split_train_test_data(data)
@@ -59,23 +63,24 @@ def predict():
     etr = ExtraTreesRegressor()
     etr.fit(train_x, train_label)
     etr_y_predict = etr.predict(test_x)
-    errors_predict = test_label - etr_y_predict
-
-    # 计算距离
-    a = errors_predict[0:, 1] * np.pi / 180.0
-    b = errors_predict[0:, 0] * np.pi / 180.0
-    sin_square_half_a = (np.sin(a / 2)) ** 2
-    sin_square_half_b = (np.sin(b / 2)) ** 2
-    extract = (sin_square_half_a + np.cos(test_label[0:, 1] * np.pi / 180.0) * np.cos(
-        etr_y_predict[0:, 1] * np.pi / 180.0) * sin_square_half_b) ** (1 / 2)
-    r = 6378.137
-    s = 2 * np.arcsin(extract) * r
-
-    print("平均距离误差（单位：km）：%f" % np.mean(s))
+    error_distance(etr_y_predict,test_label)
+    # errors_predict = test_label - etr_y_predict
+    #
+    # # 计算距离
+    # a = errors_predict[0:, 1] * np.pi / 180.0
+    # b = errors_predict[0:, 0] * np.pi / 180.0
+    # sin_square_half_a = (np.sin(a / 2)) ** 2
+    # sin_square_half_b = (np.sin(b / 2)) ** 2
+    # extract = (sin_square_half_a + np.cos(test_label[0:, 1] * np.pi / 180.0) * np.cos(
+    #     etr_y_predict[0:, 1] * np.pi / 180.0) * sin_square_half_b) ** (1 / 2)
+    # r = 6378.137
+    # s = 2 * np.arcsin(extract) * r
+    #
+    # print("平均距离误差（单位：km）：%f" % np.mean(s))
 
 
 def classifer():
-    data = load_data('data/2g.csv')
+    data = load_data('data/4g.csv')
 
     trains, tests = split_train_test_data(data)
     train_x = trains[0:, 6:]
@@ -98,3 +103,4 @@ def classifer():
 
 
 classifer()
+regress_predict()

@@ -29,17 +29,17 @@ def rasterization(data, label_pos=(4, 5), longitude_num=70, latitude_num=60):
     space_lables = subtract_min_lables / mat_space
     for i in range(0, m):
         if (math.ceil(space_lables[i, 1]) >= 1):
-            longitude_offset = longitude_num * (math.ceil(space_lables[i, 1]) - 1) + math.ceil(space_lables[i, 0])
+            longitude_offset = longitude_num * (math.ceil(space_lables[i, 1]) - 1) + int(space_lables[i, 0])
         else:
-            longitude_offset = math.ceil(space_lables[i, 0])
+            longitude_offset = int(space_lables[i, 0])
         raster_labels[i] = longitude_offset
 
-    d = {}
+    dict = {}
     for i in range(0, latitude_num):
         for j in range(0, longitude_num):
             key = i * longitude_num + j
             lon = min_longitude + longtitude_space * (j + 0.5)
             lat = min_latitude + latitude_space * (i + 0.5)
-            d[key] = [lon, lat]
+            dict[key] = [lon, lat]
 
-    return raster_labels, d
+    return raster_labels, dict
