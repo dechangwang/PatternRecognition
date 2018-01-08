@@ -11,6 +11,7 @@ import matplotlib
 import RandomForestClassification as rfc
 import numpy as np
 import run_bayes
+import run_knn
 
 matplotlib.use('TkAgg')
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
@@ -49,6 +50,9 @@ def classify():
         reDraw.raw_data = np.array(raw_data)
     elif selected == "KNN":
         print selected
+        err = run_knn.run()
+        raw_data = calculate_cdf(err)
+        reDraw.raw_data = np.array(raw_data)
     else:
         print '???'
 
