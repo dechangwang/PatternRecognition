@@ -1,12 +1,13 @@
 # coding:utf-8
-from __future__ import division
-import pandas as pd
 import copy
 import random
-import math
-import numpy as np
-from grid import RoadGrid
 import threading
+
+import numpy as np
+import pandas as pd
+
+from preprocessing.grid import RoadGrid
+from utils import distance
 
 
 # from multiply_thread import threeThread
@@ -217,26 +218,6 @@ def split_train_test_data(data):
     return trains, tests
 
 
-def rad(d):
-    return d * math.pi / 180.0
-
-
-def distance(true_pt, pred_pt):
-    lat1 = float(true_pt[1])
-    lng1 = float(true_pt[0])
-    lat2 = float(pred_pt[1])
-    lng2 = float(pred_pt[0])
-    radLat1 = rad(lat1)
-    radLat2 = rad(lat2)
-    a = radLat1 - radLat2
-    b = rad(lng1) - rad(lng2)
-    s = 2 * math.asin(math.sqrt(math.pow(math.sin(a / 2), 2) +
-                                math.cos(radLat1) * math.cos(radLat2) * math.pow(math.sin(b / 2), 2)))
-    s *= 6378.137
-    s = round(s * 10000) / 10
-    return s
-
-
 def error_distance(predict_label, test_label):
     errors_predict = test_label - predict_label
     # 计算距离
@@ -257,7 +238,7 @@ def error_distance(predict_label, test_label):
 
 
 def classify():
-    data = load_data('data/4g.csv')
+    data = load_data('./data/4g.csv')
     trains, tests = split_train_test_data(data)
     train_x = trains[0:, 6:]
     train_label = trains[0:, 4:6]
@@ -285,7 +266,7 @@ def classify():
     #     decision_tree = createTree(bagging_data, bagginglabels[:-1])
     #     print (decision_tree)
     #     save_tree.store_tree(decision_tree, 'trees50_part_attr_gini/tree%d.txt' % i)
-        # treeList.append(decision_tree)
+    #     treeList.append(decision_tree)
     print (treeList)
 
     # threads = [threeThread('id%d' % i, 'name%d' % i, i, df, 'trees100') for i in range(tree_counts)]
@@ -324,6 +305,5 @@ def classify():
     print("中位误差（单位：m）： %f" % np.median(error))
     return error
     # error_distance(predict_res, test_label)
-
 
 # classify()

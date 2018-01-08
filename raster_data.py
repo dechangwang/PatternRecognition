@@ -28,7 +28,7 @@ def rasterization(data, label_pos=(4, 5), longitude_num=70, latitude_num=60):
     subtract_min_lables = labels - mat_min_point
     space_lables = subtract_min_lables / mat_space
     for i in range(0, m):
-        if (math.ceil(space_lables[i, 1]) >= 1):
+        if math.ceil(space_lables[i, 1]) >= 1:
             longitude_offset = longitude_num * (math.ceil(space_lables[i, 1]) - 1) + int(space_lables[i, 0])
         else:
             longitude_offset = int(space_lables[i, 0])

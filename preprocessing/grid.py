@@ -2,19 +2,10 @@
 # import cPickle as pickle
 import numpy as np
 import pandas as pd
-import traceback
 
-# from numpy import *
-# import matplotlib as plt
-# from matplotlib import *
-# from matplotlib.pyplot import plot,hlines,vlines,bar
-# from matplotlib.pyplot import axis
-# from matplotlib.pyplot import legend
 lonStep_1m = 0.0000105
 latStep_1m = 0.0000090201
 
-
-# rcParams['figure.figsize'] = 12, 14
 
 class RoadGrid:
     def __init__(self, label, grid_size):
@@ -28,20 +19,11 @@ class RoadGrid:
             tr = np.max(label, axis=0)
             tr[0] += 25 * lonStep_1m
             tr[1] += 25 * latStep_1m
-            # plot(label[:,0], label[:,1], 'b,')
             # bottom left
             bl = np.min(label, axis=0)
             bl[0] -= 25 * lonStep_1m
             bl[1] -= 25 * latStep_1m
 
-            # width = (tr[1]-bl[1])/100
-            # wnum =int(np.ceil((tr[1]-bl[1])/length))
-            # for j in range(wnum):
-            # hlines(y = bl[1]+length*j, xmin = bl[0], xmax = tr[0], color = 'red')
-
-            # lnum = int(np.ceil((tr[0]-bl[0])/width))
-            # for j in range(lnum):
-            # vlines(x = bl[0]+width*j, ymin = bl[1], ymax = tr[1], color = 'red')
             return bl[0], tr[0], bl[1], tr[1]
 
         xl, xr, yb, yt = orginal_plot(label)
@@ -61,15 +43,10 @@ class RoadGrid:
                 grid_dict[(m, n)] = []
             grid_dict[(m, n)].append((lon, lat))
             gridSet.add((m, n))
-        # print len(gridSet)
         gridlist = list(gridSet)
 
         grid_center = [tuple(np.mean(np.array(lonlat_list), axis=0)) for (i, j), lonlat_list in grid_dict.items()]
 
-        # for gs in gridSet:
-        # xlon = xl+gs[0]*width
-        # ylat = yb+gs[1]*length
-        # bar(xlon,length,width,ylat,color='#7ED321')
         self.gridlist = gridlist
 
         self.grids = [(xl + i[0] * width, yb + i[1] * length) for i in grid_dict.keys()]
@@ -92,7 +69,6 @@ class RoadGrid:
         grid_pos = self.transform(labels.values, False)
         assert features.shape[0] == labels.shape[0] == len(grid_pos)
         ave_val = [0] * (max(grid_pos) + 1)
-        # for i in np.unique(grid_pos):
         for i in range(0, max(grid_pos) + 1):
             t = []
             for idx, pos in enumerate(grid_pos):
@@ -102,14 +78,7 @@ class RoadGrid:
                 ave_val[i] = pd.concat(t, axis=1).T.mean(axis=0)
         for idx, pos in enumerate(grid_pos):
             features.loc[idx, column_names] = ave_val[pos]
-        # try:
-        #     assert len(np.unique(features[column_names[0]])) == len(np.unique(np.array(grid_pos)))
-        # except AssertionError:
-        #     traceback.print_exc()
-        #     print len(np.unique(features[column_names[0]]))
-        #     print len(np.unique(np.array(grid_pos)))
-        #     for geomag in ave_val:
-        #         print geomag
+
         return features
 
 
@@ -136,7 +105,7 @@ class AreaGrid:
     def gid(self, pt):
         lon, lat = pt
         if self.min_lon <= lon <= self.max_lon and \
-                                self.min_lat <= lat <= self.max_lat:
+                self.min_lat <= lat <= self.max_lat:
             i = int((lat - self.min_lat) / self.lat_offset)
             j = int((lon - self.min_lon) / self.lon_offset)
             return i * self.k + j + 1

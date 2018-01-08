@@ -66,3 +66,4 @@ ENV/
 .idea/**/dynamic.xml
 .idea/**/uiDesigner.xml
 .idea/**/other.xml
+.idea/**/inspectionProfiles/

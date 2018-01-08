@@ -10,6 +10,7 @@ from ttk import *
 import matplotlib
 import RandomForestClassification as rfc
 import numpy as np
+import run_bayes
 
 matplotlib.use('TkAgg')
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
@@ -22,7 +23,7 @@ def reDraw():
     reDraw.f.clf()
     reDraw.a = reDraw.f.add_subplot(111)
     reDraw.a.set_ylabel('cdf')
-    reDraw.a.set_yticks([0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1])
+    reDraw.a.set_yticks([0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1])
     reDraw.a.set_xlabel('distance error(m)')
     reDraw.a.scatter(reDraw.raw_data[:, 0], reDraw.raw_data[:, 1], c='r', marker='x')
     reDraw.a.plot(reDraw.raw_data[:, 0], reDraw.raw_data[:, 1], linewidth=1)
@@ -33,15 +34,35 @@ def classify():
     if selected == "RF":
         print (selected)
         data = rfc.classify()
-        data = np.sort(data)
-        size = len(data) - 1
-        raw_data = []
-        for i in range(1, 11):
-            value = data[int(size * i / 10)]
-            raw_data.append([value, float(i) / 10])
+        # data = np.sort(data)
+        # size = len(data) - 1
+        # raw_data = []
+        # for i in range(1, 11):
+        #     value = data[int(size * i / 10)]
+        #     raw_data.append([value, float(i) / 10])
+        raw_data = calculate_cdf(data)
         reDraw.raw_data = np.array(raw_data)
+    elif selected == "Bayes":
+        print selected
+        error = run_bayes.run('./data/4g.csv')
+        raw_data = calculate_cdf(error)
+        reDraw.raw_data = np.array(raw_data)
+    elif selected == "KNN":
+        print selected
+    else:
+        print '???'
 
     reDraw()
+
+
+def calculate_cdf(data):
+    data = np.sort(data)
+    size = len(data) - 1
+    raw_data = []
+    for i in range(1, 11):
+        value = data[int(size * i / 10)]
+        raw_data.append([value, float(i) / 10])
+    return raw_data
 
 
 def show_list_item(arg):
