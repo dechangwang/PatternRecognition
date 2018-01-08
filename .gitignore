@@ -10,7 +10,15 @@ docs/_build/
 
 # PyBuilder
 target/
-
+trees100/
+trees100_1/
+trees50/
+trees50_part_attr/
+trees50_part_attr_gini/
+forest_100/
+regressTrees/
+randomforest/
+trees/
 # Jupyter Notebook
 .ipynb_checkpoints
 

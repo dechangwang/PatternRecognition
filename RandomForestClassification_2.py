@@ -6,27 +6,6 @@ import random
 import math
 import numpy as np
 from grid import RoadGrid
-import threading
-
-
-# from multiply_thread import threeThread
-
-class threeThread(threading.Thread):
-    def __init__(self, threadID, name, i, df, file_dir):
-        threading.Thread.__init__(self)
-        self.threadID = threadID
-        self.name = name
-        self.i = i
-        self.df = df
-        self.file_dir = file_dir
-
-    def run(self):
-        print "Starting " + self.name
-        bagging_data, bagginglabels = baggingDataSet(self.df)
-        decision_tree = createTree(bagging_data, bagginglabels[:-1])
-        import save_tree
-        save_tree.store_tree(decision_tree, '%s/tree%d.txt' % (self.file_dir, self.i))
-        print "Exiting " + self.name
 
 
 # 最后一个属性还不能将样本完全分开，此时数量最多的label被选为最终类别
@@ -64,7 +43,7 @@ def splitDataSet(dataSet, featIndex, value):
 
 
 # 选择最好的数据集划分方式
-def chooseBestFeature(dataSet, index=1):
+def chooseBestFeature(dataSet):
     bestGini = 1
     bestFeatureIndex = -1
     bestSplitValue = None
@@ -75,50 +54,47 @@ def chooseBestFeature(dataSet, index=1):
 
     arr = np.array(dataSet)
     # bestSplitValue = np.mean(arr[:, bestFeatureIndex])
-    # min_value = np.min(arr[:, bestFeatureIndex])
-    # max_value = np.max(arr[:, bestFeatureIndex])
-    # bestSplitValue = random.uniform(min_value, max_value)
+    min_value = np.min(arr[:, bestFeatureIndex])
+    max_value = np.max(arr[:, bestFeatureIndex])
+    bestSplitValue = random.uniform(min_value, max_value)
 
-    if index == 0:
-        featList = [dt[bestFeatureIndex] for dt in dataSet]
-        # 产生候选划分点
-        sortfeatList = sorted(list(set(featList)))
-        splitList = []
-        for j in range(len(sortfeatList) - 1):
-            splitList.append((sortfeatList[j] + sortfeatList[j + 1]) / 2)
+    featList = [dt[bestFeatureIndex] for dt in dataSet]
+    # 产生候选划分点
+    sortfeatList = sorted(list(set(featList)))
+    splitList = []
+    for j in range(len(sortfeatList) - 1):
+        splitList.append((sortfeatList[j] + sortfeatList[j + 1]) / 2)
 
-        # 第j个候选划分点，记录最佳划分点
-        for splitValue in splitList:
-            newGini = 0
-            subDataSet0, subDataSet1 = splitDataSet(dataSet, i, splitValue)
-            newGini += len(subDataSet0) / len(dataSet) * calcGini(subDataSet0)
-            newGini += len(subDataSet1) / len(dataSet) * calcGini(subDataSet1)
-            if newGini < bestGini:
-                bestGini = newGini
-                bestSplitValue = splitValue
-        return bestFeatureIndex, bestSplitValue
+    # 第j个候选划分点，记录最佳划分点
+    for splitValue in splitList:
+        newGini = 0
+        subDataSet0, subDataSet1 = splitDataSet(dataSet, i, splitValue)
+        newGini += len(subDataSet0) / len(dataSet) * calcGini(subDataSet0)
+        newGini += len(subDataSet1) / len(dataSet) * calcGini(subDataSet1)
+        if newGini < bestGini:
+            bestGini = newGini
+            bestSplitValue = splitValue
 
-    for i in range(len(dataSet[0]) - 1):
-        featList = [dt[i] for dt in dataSet]
-        # 产生候选划分点
-        sortfeatList = sorted(list(set(featList)))
-        splitList = []
-        for j in range(len(sortfeatList) - 1):
-            splitList.append((sortfeatList[j] + sortfeatList[j + 1]) / 2)
 
-        # 第j个候选划分点，记录最佳划分点
-        for splitValue in splitList:
-            newGini = 0
-            subDataSet0, subDataSet1 = splitDataSet(dataSet, i, splitValue)
-            newGini += len(subDataSet0) / len(dataSet) * calcGini(subDataSet0)
-            newGini += len(subDataSet1) / len(dataSet) * calcGini(subDataSet1)
-            if newGini < bestGini:
-                bestGini = newGini
-                bestFeatureIndex = i
-                bestSplitValue = splitValue
+    # for i in range(len(dataSet[0]) - 1):
+    #     featList = [dt[i] for dt in dataSet]
+    #     # 产生候选划分点
+    #     sortfeatList = sorted(list(set(featList)))
+    #     splitList = []
+    #     for j in range(len(sortfeatList) - 1):
+    #         splitList.append((sortfeatList[j] + sortfeatList[j + 1]) / 2)
+    #
+    #     # 第j个候选划分点，记录最佳划分点
+    #     for splitValue in splitList:
+    #         newGini = 0
+    #         subDataSet0, subDataSet1 = splitDataSet(dataSet, i, splitValue)
+    #         newGini += len(subDataSet0) / len(dataSet) * calcGini(subDataSet0)
+    #         newGini += len(subDataSet1) / len(dataSet) * calcGini(subDataSet1)
+    #         if newGini < bestGini:
+    #             bestGini = newGini
+    #             bestFeatureIndex = i
+    #             bestSplitValue = splitValue
     return bestFeatureIndex, bestSplitValue
-
-
 # 去掉第i个属性，生成新的数据集
 def splitData(dataSet, featIndex, features, value):
     newFeatures = copy.deepcopy(features)
@@ -136,11 +112,11 @@ def splitData(dataSet, featIndex, features, value):
 
 
 # 建立决策树
-def createTree(dataSet, features, index=0):
+def createTree(dataSet, features):
     classList = [dt[-1] for dt in dataSet]
 
-    # if len(dataSet) == 0 or len(features) == 0:
-    #     return
+    if len(dataSet) == 0 or len(features) == 0:
+        return
 
     # label一样，全部分到一边
     if classList.count(classList[0]) == len(classList):
@@ -149,18 +125,16 @@ def createTree(dataSet, features, index=0):
 
     if len(features) == 1 or len(dataSet[0]) == 1:
         return majorClass(classList)
-    bestFeatureIndex, bestSplitValue = chooseBestFeature(dataSet, index)
+    bestFeatureIndex, bestSplitValue = chooseBestFeature(dataSet)
     if bestFeatureIndex >= len(features):
         return majorClass(classList)
     bestFeature = features[bestFeatureIndex]
     # 生成新的去掉bestFeature特征的数据集
     newFeatures, leftData, rightData = splitData(dataSet, bestFeatureIndex, features, bestSplitValue)
-    if len(leftData) == 0 or len(rightData) == 0:
-        return majorClass(classList)
     # 左右两颗子树，左边小于等于最佳划分点，右边大于最佳划分点
     myTree = {bestFeature: {'<' + str(bestSplitValue): {}, '>' + str(bestSplitValue): {}}}
-    myTree[bestFeature]['<' + str(bestSplitValue)] = createTree(leftData, newFeatures, index + 1)
-    myTree[bestFeature]['>' + str(bestSplitValue)] = createTree(rightData, newFeatures, index + 1)
+    myTree[bestFeature]['<' + str(bestSplitValue)] = createTree(leftData, newFeatures)
+    myTree[bestFeature]['>' + str(bestSplitValue)] = createTree(rightData, newFeatures)
     return myTree
 
 
@@ -181,11 +155,10 @@ def treeClassify(decisionTree, featureLabel, testDataSet):
     return pred_label
 
 
-# 随机抽取样本，样本数量与原训练样本集一样，维度为m-1
+# 随机抽取样本，样本数量与原训练样本集一样，维度为sqrt(m-1)
 def baggingDataSet(dataSet):
     n, m = dataSet.shape
-    # features = random.sample(dataSet.columns.values[:-1], int(m - 1))
-    features = [0, 1, 3, 6, 7, 9, 12, 13, 15, 18, 19, 20, 24, 25, 27, 30, 31, 33]
+    features = random.sample(dataSet.columns.values[:-1], int(m - 1))
     features.append(dataSet.columns.values[-1])
     # features = dataSet.columns.values[:]
     rows = [random.randint(0, n - 1) for _ in range(n)]
@@ -275,30 +248,15 @@ def classify():
     feature_labels = df.columns.values.tolist()
     # df = df[df[labels[-1]] != 3]
 
-    import save_tree
-
     # 生成多棵决策树，放到一个list里边
-    tree_counts = 50
+    treeCounts = 50
     treeList = []
-    # for i in range(tree_counts):
-    #     bagging_data, bagginglabels = baggingDataSet(df)
-    #     decision_tree = createTree(bagging_data, bagginglabels[:-1])
-    #     print (decision_tree)
-    #     save_tree.store_tree(decision_tree, 'trees50_part_attr_gini/tree%d.txt' % i)
-        # treeList.append(decision_tree)
+    for i in range(treeCounts):
+        baggingData, bagginglabels = baggingDataSet(df)
+        decisionTree = createTree(baggingData, bagginglabels[:-1])
+        treeList.append(decisionTree)
     print (treeList)
-
-    # threads = [threeThread('id%d' % i, 'name%d' % i, i, df, 'trees100') for i in range(tree_counts)]
-    # for t in threads:
-    #     t.start()
-    #
-    # for t in threads:
-    #     t.join()
-
     print ("start testing ...")
-    for i in range(tree_counts):
-        tree = save_tree.load_tree('trees50_1/tree%d.txt' % i)
-        treeList.append(tree)
     m = len(test_x)
     # predict_res = np.zeros((m, 2))
     predict_res = []
@@ -318,12 +276,11 @@ def classify():
         # predict_res[i] = dict_raster[int(sortClass[-1][0])]
     pre = np.array([rg.grid_center[idx] for idx in predict_res])
     error = [distance(pt1, pt2) for pt1, pt2 in zip(pre, test_label)]
-    print("平均距离误差（单位：m）：%f" % np.mean(error))
+    print("平均距离误差（单位：mm）：%f" % np.mean(error))
     print("最大距离误差（单位：m）：%f" % np.max(error))
     print("最小距离误差（单位：m）：%f" % np.min(error))
     print("中位误差（单位：m）： %f" % np.median(error))
-    return error
     # error_distance(predict_res, test_label)
 
 
-# classify()
+classify()
