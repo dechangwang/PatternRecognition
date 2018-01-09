@@ -67,3 +67,5 @@ ENV/
 .idea/**/uiDesigner.xml
 .idea/**/other.xml
 .idea/**/inspectionProfiles/
+.idea/Location.iml
+.idea/misc.xml
