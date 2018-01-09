@@ -8,7 +8,7 @@ Time 2018/1/8
 from Tkinter import *
 from ttk import *
 import matplotlib
-import RandomForestClassification as rfc
+from models import RandomForestClassification as rfc
 import numpy as np
 import run_bayes
 import run_knn

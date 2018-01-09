@@ -37,7 +37,6 @@ def split_data(raw_data):
 
 
 def run(filename='./data/4g.csv'):
-    filename = './data/4g.csv'
     df_4g = pd.read_csv(filename)
     train_features, train_label, test_features, test_label = split_data(df_4g)
     rg = RoadGrid(np.vstack((train_label, test_label)), 30)
