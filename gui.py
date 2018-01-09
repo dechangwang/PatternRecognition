@@ -17,7 +17,7 @@ matplotlib.use('TkAgg')
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure
 
-selected = 'RF'
+selected = None
 
 
 def reDraw():
@@ -43,20 +43,21 @@ def classify():
         #     raw_data.append([value, float(i) / 10])
         raw_data = calculate_cdf(data)
         reDraw.raw_data = np.array(raw_data)
+        reDraw()
     elif selected == "Bayes":
         print selected
         error = run_bayes.run('./data/4g.csv')
         raw_data = calculate_cdf(error)
         reDraw.raw_data = np.array(raw_data)
+        reDraw()
     elif selected == "KNN":
         print selected
         err = run_knn.run()
         raw_data = calculate_cdf(err)
         reDraw.raw_data = np.array(raw_data)
+        reDraw()
     else:
         print '???'
-
-    reDraw()
 
 
 def calculate_cdf(data):
@@ -83,7 +84,7 @@ reDraw.canvas = FigureCanvasTkAgg(reDraw.f, master=root)
 reDraw.canvas.show()
 reDraw.canvas.get_tk_widget().grid(row=0, columnspan=3)
 
-Label(root, text="Choose a algorithm").grid(row=1, column=0)
+Label(root, text="Choose an algorithm").grid(row=1, column=0)
 # Label(root, text="tolN").grid(row=1, column=0)
 # tolNentry = Entry(root)
 # tolNentry.grid(row=1, column=1)
@@ -93,7 +94,7 @@ Button(root, text="classify", command=classify).grid(row=1, column=2, rowspan=3)
 
 algorithms = StringVar()
 algorithm_chosen = Combobox(root, width=12, textvariable=algorithms)
-algorithm_chosen['values'] = ("KNN", "RF", "Bayes")
+algorithm_chosen['values'] = ("Choose an algorithm", "Bayes", "RF", "KNN")
 algorithm_chosen.grid(row=1, column=1)
 algorithm_chosen.current(0)
 algorithm_chosen.bind("<<ComboboxSelected>>", show_list_item)
